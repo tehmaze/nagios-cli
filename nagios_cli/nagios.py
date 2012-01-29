@@ -8,7 +8,7 @@ class Command(object):
 
     def __call__(self, *args):
         self.pipe.write('[%d] %s\n' % (time.time(),
-            ';'.join(args)))
+            ';'.join(map(str, args))))
         self.pipe.flush()
 
 
