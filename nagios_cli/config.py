@@ -44,6 +44,9 @@ level.unknown           = bold_magenta
 '''
 
 class Config(dict):
+    def __init__(self, options):
+        self.options = options
+
     def has_section(self, section):
         return bool(self.get_section(section))
 

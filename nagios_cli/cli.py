@@ -82,17 +82,20 @@ class CLI(object):
     def flush(self):
         sys.stdout.flush()
 
-    def send(self, text):
-        sys.stdout.write(text)
+    def send(self, text, error=False):
+        if error:
+            sys.stderr.write(text)
+        else:
+            sys.stdout.write(text)
 
-    def sendline(self, text):
-        self.send(text + '\n')
+    def sendline(self, text, error=False):
+        self.send(text + '\n', error=error)
 
     def error(self, text):
-        self.sendline(self.ui.color('error', text))
+        self.sendline(self.ui.color('error', text), error=True)
 
     def warn(self, text):
-        self.sendline(self.ui.color('warn', text))
+        self.sendline(self.ui.color('warn', text), error=True)
 
     def ask_bool(self, question, min_length=None, default=None):
         if min_length:
@@ -239,19 +242,23 @@ class CLI(object):
     def dispatch(self, line):
         if not line:
             self.sendline('')
-            return
+            return True
 
         part = RE_SPACING.split(line)
         if not part:
             self.sendline('')
-            return
+            return True
 
         cmnd, args = part[0], part[1:]
         if not self.command_run(cmnd, args):
             self.error('Invalid command "%s"' % (cmnd,))
+            return False
+        else:
+            return True
 
     def run(self, banner='Welcome to the nagios command line interface'):
-        self.sendline(banner)
+        if not self.config.options.quiet:
+            self.sendline(banner)
         self.running = True
         while self.running:
             try:

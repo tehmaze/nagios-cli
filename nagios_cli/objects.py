@@ -46,7 +46,8 @@ class Objects(object):
         return fnmatch.filter(self.hosts.keys(), pattern)
 
     def parse_status(self):
-        spinner = Spinner(self.cli, 'Loading nagios objects')
+        if not self.config.options.quiet:
+            spinner = Spinner(self.cli, 'Loading nagios objects')
         filename = self.config.get('nagios.status_file')
 
         for item in self.parser.parse(filename):
@@ -67,8 +68,10 @@ class Objects(object):
                     # XXX need to make sure we have no services with spaces :(
                     name = name.replace(' ', '-')
                     host.services[name] = Service.convert(item)
-                    spinner.tick()
+                    if not self.config.options.quiet:
+                        spinner.tick()
 
         # Finished
-        spinner.stop()
+        if not self.config.options.quiet:
+            spinner.stop()
 

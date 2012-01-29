@@ -15,6 +15,12 @@ def run():
         help='configuration file name')
     group.add_option('-w', '--write', dest='write', action='store_true', default=False,
         help='write configuration file')
+    group.add_option('-e', '--execute', dest='execute', metavar='statements',
+        help='execute the given statements')
+    group.add_option('-q', '--quiet', dest='quiet', action='store_true', default=False,
+        help='be quiet')
+    group.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False,
+        help='be verbose')
     parser.add_option_group(group)
     
     group = optparse.OptionGroup(parser, 'User Interface')
@@ -27,7 +33,11 @@ def run():
         parser.error('too many arguments')
         return 1
 
-    config = Config()
+    if options.quiet and options.verbose:
+        parser.error('quiet and verbose options are mutually exclusive')
+        return 1
+
+    config = Config(options)
     config.load_default()
     if options.write:
         if not options.config:
@@ -57,6 +67,14 @@ def run():
             cli.dispatch('host %s' % (arg,))
         elif i == 1:
             cli.dispatch('service %s' % (arg,))
+
+    if options.execute:
+        for line in options.execute.split(';'):
+            line = line.lstrip()
+            if not cli.dispatch(line):
+                return 1
+        return 0
+
     return cli.run()
 
 if __name__ == '__main__':
