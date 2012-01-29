@@ -44,53 +44,20 @@ class Color(object):
         ])
 
 
-class Formatted(object):
+class Fancy(object):
     def __init__(self, ui):
         self.ui = ui
+        self.config = self.ui.config
 
-    def to_bool(self, value, default=0):
+    def state(self, value):
+        return self.ui.color('level.%s' % (value,),
+            self.config.get('string.level.%s' % (value,), value))
+
+    def time(self, value):
         if value is None:
-            value = default
-        return ['no', 'yes'][int(value)]
-
-    def to_state(self, value, default=-1):
-        if value is None:
-            value = default
-        value = int(value)
-        if value == -1:
-            return self.ui.color('level.na', 'N/A')
-        elif value == 0:
-            return self.ui.color('level.ok',
-                self.ui.config.get('string.level.ok', 'OK'))
-        elif value == 1:
-            return self.ui.color('level.warning',
-                self.ui.config.get('string.level.warning', 'WARNING'))
-        elif value == 2:
-            return self.ui.color('level.critical',
-                self.ui.config.get('string.level.critical', 'CRITICAL'))
-        else:
-            return self.ui.color('level.unknown',
-                self.ui.config.get('string.level.unknown', 'UNKNOWN'))
-
-    def to_str(self, value, default='N/A', max_length=0):
-        if value is None:
-            value = default
-
-        if max_length:
-            return str(value)[:max_length]
-        else:
-            return str(value)
-
-    def to_time(self, value, default=-1):
-        if value is None:
-            value = default
-        value = float(value)
-        if value < 0:
-            return 'N/A'
-        elif value == 0:
             return 'never'
         else:
-            return str(datetime.datetime.fromtimestamp(value))
+            return str(value)
 
 
 class UI(object):

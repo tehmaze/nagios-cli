@@ -1,6 +1,6 @@
 from nagios_cli import objects
 from nagios_cli.commands.base import Command
-from nagios_cli.ui import Formatted
+from nagios_cli.ui import Fancy
 from nagios_cli.util import get_username
 
 
@@ -73,9 +73,9 @@ class Service(Command):
             format = Formatted(self.cli.ui)
             for service in sorted(host.services):
                 name = host.services[service].service_description
-                self.cli.sendline('%s: %s, %s' % (name.ljust(20, ' '),
-                    format.to_state(host.services[service].current_state),
-                    host.services[service].plugin_output[:48]))
+                self.cli.sendline('%s: %s, %s' % (str(name).ljust(20, ' '),
+                    str(host.services[service].current_state),
+                    str(host.services[service].plugin_output)[:48]))
 
         elif service in host.services:
             self.cli.context.add(host.services[service])
@@ -193,60 +193,64 @@ class Status(Command):
             self.run_service(obj)
 
     def run_host(self, instance):
+        # Fancy formatter
+        fancy = Fancy(self.cli.ui)
         # Show info about host
-        format = Formatted(self.cli.ui)
         fields = (
-            ('host_name',           format.to_str),
-            ('address',             format.to_str),
-            ('current_state',       format.to_state),
-            ('is_flapping',         format.to_bool),
-            ('plugin_output',       format.to_str),
-            ('last_check',          format.to_time),
-            ('last_time_down',      format.to_time),
-            ('last_state_change',   format.to_time),
-            ('check_period',        format.to_str),
-            ('notification_period', format.to_str),
-            ('current_attempt',     format.to_str),
-            ('max_attempts',        format.to_str),
+            'host_name',
+            'address',
+            'current_state',
+            'plugin_output',
+            'is_flapping',
+            'last_check',
+            'last_time_down',
+            'last_state_change',
+            'check_period',
+            'notification_period',
+            'current_attempt',
+            'max_attempts',
         )
-        for field, formatter in fields:
-            value = instance.get(field)
+        for field in fields:
+            value = str(instance.get(field))
+            if field == 'current_state':
+                value = fancy.state(value)
             self.cli.sendline('%s: %s' % (field.ljust(20, ' ').replace('_', ' '),
-                self.cli.ui.color('.'.join(['host', field]),
-                    formatter(value))))
+                self.cli.ui.color('.'.join(['host', field]), value)))
 
         # Show associated services and their status (in short version)
         for service in sorted(instance['services'].keys()):
             svc = instance['services'][service]
             self.cli.sendline('%s: %-20s %s' % ('service'.ljust(20, ' '),
-                format.to_str(svc.service_description, max_length=20),
-                format.to_state(svc.current_state)))
+                str(svc.service_description)[:20],
+                fancy.state(str(svc.current_state))))
 
     def run_service(self, instance):
+        # Fancy formatter
+        fancy = Fancy(self.cli.ui)
         # Show info about service
-        format = Formatted(self.cli.ui)
         fields = (
-            ('host_name',           format.to_str),
-            ('service_description', format.to_str),
-            ('current_state',       format.to_state),
-            ('is_flapping',         format.to_bool),
-            ('plugin_output',       format.to_str),
-            ('last_time_down',      format.to_time),
-            ('last_state_change',   format.to_time),
-            ('last_check',          format.to_time),
-            ('next_check',          format.to_time),
-            ('check_interval',      format.to_str),
-            ('check_latency',       format.to_str),
-            ('check_period',        format.to_str),
-            ('notification_period', format.to_str),
-            ('current_attempt',     format.to_str),
-            ('max_attempts',        format.to_str),
+            'host_name',
+            'service_description',
+            'current_state',
+            'is_flapping',
+            'plugin_output',
+            'last_time_down',
+            'last_state_change',
+            'last_check',
+            'next_check',
+            'check_interval',
+            'check_latency',
+            'check_period',
+            'notification_period',
+            'current_attempt',
+            'max_attempts',
         )
-        for field, formatter in fields:
-            value = instance.get(field)
+        for field in fields:
+            value = str(instance.get(field))
+            if field == 'current_state':
+                value = fancy.state(value)
             self.cli.sendline('%s: %s' % (field.ljust(20, ' ').replace('_', ' '),
-                self.cli.ui.color('.'.join(['service', field]),
-                    formatter(value))))
+                self.cli.ui.color('.'.join(['service', field]), value)))
 
 
 # Default commands
