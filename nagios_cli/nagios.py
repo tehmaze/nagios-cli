@@ -1,3 +1,17 @@
+import time
+
+
+class Command(object):
+    def __init__(self, config):
+        self.config = config
+        self.pipe = open(config.get('nagios.command_file'), 'a')
+
+    def __call__(self, *args):
+        self.pipe.write('[%d] %s\n' % (time.time(),
+            ';'.join(args)))
+        self.pipe.flush()
+
+
 class Section(dict):
     def __init__(self, name):
         self.name = name

@@ -2,41 +2,30 @@ import os
 import re
 import readline
 import sys
-from nagios_cli import command
+from nagios_cli import command, nagios
+from nagios_cli.context import Context
 from nagios_cli.ui import UI
 from nagios_cli.objects import Objects
 
-RE_SPACING = re.compile(r'\s+')
-
-
-class Context(object):
-    def __init__(self, stack=[]):
-        self.stack = stack
-
-    def add(self, item):
-        self.stack.append(item)
-
-    def pop(self, item=-1, default=None):
-        if self.stack:
-            return self.stack.pop(item)
-        else:
-            return default
-
-    def get(self, item=-1):
-        return self.stack and self.stack[item]
-
-    def set(self, item):
-        self.stack = [item]
+RE_SPACING   = re.compile(r'\s+')
+RE_RUN_GIVEN = re.compile(r'^run\(\) takes.* \((?P<given>\d+) given\)')
 
 
 class CLI(object):
     def __init__(self, config):
         self.config = config
+        # CLI user interface
         self.ui = UI(config)
+        # CLI commands
         self.commands = {}
+        # CLI context
         self.context = Context()
-        self.objects = Objects(self, config)
+        # Readline matches
         self.matches = []
+        # Nagios objects
+        self.objects = Objects(self, config)
+        # Nagios command pipe
+        self.command = nagios.Command(config)
 
         self.setup_prompt()
         self.setup_readline()
@@ -99,6 +88,52 @@ class CLI(object):
     def warn(self, text):
         self.sendline(self.ui.color('warn', text))
 
+    def ask_bool(self, question, min_length=None, default=None):
+        if min_length:
+            question = question.ljust(min_length, ' ')
+
+        answer = None
+        prompt = question + ' [yn]: ' 
+        if default is not None:
+            if default is True or default in 'yY':
+                prompt = question + ' [Yn]: '
+                default = True
+            
+            elif default is False or default in 'nN':
+                prompt = question + ' [yN]: '
+                default = False
+
+            else:
+                default = None
+
+        while answer is None:
+            answer = raw_input(prompt)
+            if answer:
+                if answer in 'yY':
+                    answer = True
+                elif answer in 'nN':
+                    answer = False
+                else:
+                    self.error('Invalid response')
+                    answer = None
+            else:
+                answer = default
+
+        return answer 
+
+    def ask_str(self, question, min_length=None):
+        if min_length:
+            question = question.ljust(min_length, ' ')
+
+        answer = None
+        prompt = question + ': '
+        while answer is None:
+            answer = raw_input(prompt)
+            if not answer:
+                answer = None
+        
+        return answer
+
     # Commands
 
     def command_add(self, obj):
@@ -129,13 +164,36 @@ class CLI(object):
             self.commands[name].run(*args)
         except TypeError, e:
             msg = e.message
-            if msg.startswith('run()') and (
-                'takes exactly' in msg or \
-                'takes at least' in msg or \
-                'takes at most' in msg):
-                self.error('Syntax error')
+            info = RE_RUN_GIVEN.search(e.message)
+            if info:
+                # Function arguments count (minus self)
+                args = self.commands[name].run.func_code.co_argcount - 1
+                least = args - len(self.commands[name].run.func_defaults)
+                # Given arguments count (minus self)
+                given = int(info.groupdict()['given']) - 1
+                if args == least:
+                    error = 'exactly'
+                    count = args
+                elif given < least:
+                    error = 'at least'
+                    count = least
+                elif given > args:
+                    error = 'at most'
+                    count = args
+                else:
+                    print 'huh?', args, least, given
+                    return
+
+                plural = ''
+                if count != 1:
+                    plural = 's'
+                self.error('Syntax error: %s takes %s %d argument%s (%d given)' % \
+                    (name, error, count, plural, given))
                 return True
             else:
+                print dir(e)
+                print e.message
+                print e.args
                 raise
 
         return True
@@ -150,15 +208,19 @@ class CLI(object):
                 if len(part) == 1:
                     self.matches = [key
                         for key in self.commands.keys()
-                        if key.startswith(text) and
-                        self.commands[key].valid_in_context(self.context)]
+                        if key.startswith(text) and (
+                            self.commands[key].is_global or \
+                            self.commands[key].valid_in_context(self.context))]
                 elif cmnd in self.commands:
                     text = text.replace(cmnd, '').lstrip()
                     self.matches = self.commands[cmnd].complete(text, state)
                 else:
                     self.matches = []
             else:
-                self.matches = self.commands.keys()
+                self.matches = [key
+                    for key in self.commands.keys()
+                    if self.commands[key].is_global or \
+                        self.commands[key].valid_in_context(self.context)]
 
         try:
             return self.matches[state]
@@ -166,8 +228,13 @@ class CLI(object):
             pass
 
     def dispatch(self, line):
+        if not line:
+            self.sendline('')
+            return
+
         part = RE_SPACING.split(line)
         if not part:
+            self.sendline('')
             return
 
         cmnd, args = part[0], part[1:]
@@ -183,7 +250,7 @@ class CLI(object):
             except EOFError:
                 line = 'EOF'
             except KeyboardInterrupt:
-                line = 'exit'
+                line = ''
 
             stop = self.dispatch(line)
             if stop:

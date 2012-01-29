@@ -1,9 +1,10 @@
 import fnmatch
 from nagios_cli import nagios
+from nagios_cli.context import Section
 from nagios_cli.ui import Spinner
 
 
-class Object(dict):
+class Object(Section, dict):
     def __getattr__(self, attr):
         if attr in self:
             return self[attr]
@@ -12,7 +13,7 @@ class Object(dict):
 
 class Host(Object):
     def __str__(self):
-        return self.host_name
+        return '(host) %s' % (self.host_name,)
 
 
 class Service(Object):
@@ -35,7 +36,7 @@ class Objects(object):
 
     def parse_status(self):
         spinner = Spinner(self.cli, 'Loading nagios objects')
-        filename = self.config.get('nagios.status.dat')
+        filename = self.config.get('nagios.status_file')
         for item in self.parser.parse(filename):
             if item.name == 'info':
                 self.info = Object(item)
@@ -49,6 +50,10 @@ class Objects(object):
                 host = self.hosts.get(item.get('host_name', None), None)
                 name = item.get('service_description', None)
                 if host and name:
+                    # XXX We do this because Python's readline has limitations,
+                    # XXX as it's not able to handle quotation. Therefor we
+                    # XXX need to make sure we have no services with spaces :(
+                    name = name.replace(' ', '-')
                     host.services[name] = Service(item)
                     spinner.tick()
 

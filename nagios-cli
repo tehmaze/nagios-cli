@@ -8,17 +8,37 @@ def run():
     import optparse
 
     parser = optparse.OptionParser(usage='%prog [<options>] [<host> [<service>]]')
-    parser.add_option('-c', '--config',
-        help='Configuration file')
+    
+    group = optparse.OptionGroup(parser, 'Generic')
+    group.add_option('-c', '--config', dest='config', metavar='filename',
+        help='Configuration file name')
+    parser.add_option_group(group)
+    
+    group = optparse.OptionGroup(parser, 'User Interface')
+    group.add_option('--no-color', dest='no_color', action='store_true', default=False,
+        help='Disable UI colors')
+    parser.add_option_group(group)
 
     options, args = parser.parse_args()
+    if len(args) > 2:
+        parser.error('too many arguments')
+        return 1
 
     config = Config()
     config.load_default()
     if options.config:
         config.load(options.config)
 
+    # Disable UI colors
+    if options.no_color:
+        config['ui.color'] = 0
+
     cli = CLI(config)
+    for i, arg in enumerate(args):
+        if i == 0:
+            cli.dispatch('host %s' % (arg,))
+        elif i == 1:
+            cli.dispatch('service %s' % (arg,))
     return cli.run()
 
 if __name__ == '__main__':

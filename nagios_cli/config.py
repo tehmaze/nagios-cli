@@ -17,8 +17,9 @@ prompt_separator        = " → "
 
 [nagios]
 log                     = /var/log/nagios
-objects.cache           = %(log)s/objects.cache
-status.dat              = %(log)s/nagios/status.dat
+command_file            = %(log)s/rw/nagios.cmd
+object_cache_file       = %(log)s/objects.cache
+status_file             = %(log)s/status.dat
 
 [string]
 level.ok                = ↑ OK
@@ -43,6 +44,23 @@ level.unknown           = bold_magenta
 '''
 
 class Config(dict):
+    def has_section(self, section):
+        return bool(self.get_section(section))
+
+    def get_section(self, section):
+        keys = []
+        name = '.'.join([section, ''])
+        for key in self:
+            if key.startswith(name):
+                keys.append(key)
+        return keys
+
+    def get_sections(self):
+        sections = set()
+        for key in self:
+            sections.add(key.split('.')[0])
+        return tuple(sections)
+
     def load(self, filename):
         fp = open(filename, 'rb')
         self.load_file(fp)
