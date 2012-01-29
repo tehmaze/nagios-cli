@@ -23,8 +23,8 @@ status_file             = %(log)s/status.dat
 
 [string]
 level.ok                = ↑ OK
-level.warning           = ↓ WARNING
-level.critical          = ⚠ CRITICAL
+level.warning           = ! WARNING
+level.critical          = ↓ CRITICAL
 level.unknown           = ↕ UNKNOWN
 
 [color]
