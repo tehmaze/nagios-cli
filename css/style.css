@@ -1,0 +1,71 @@
+body {
+    font: 13px Helvetica,Arial,Sans-Serif;
+    line-height: 1.5em;
+}
+
+a {
+    color: #f80;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+code {
+    font-weight: bold;
+}
+code, pre {
+    padding: 0.25em 0.5em;
+    color: #aaa;
+    background-color: #000;
+}
+
+h1 {
+    font-size: 200%;
+    margin: 1em 0;
+}
+
+h2 {
+    font-size: 150%;
+    margin: 0.75em 0;
+}
+h2 {
+    content: "ACTIVE";
+}
+
+p, ul {
+    margin-bottom: 1em;
+}
+
+ul {
+    padding-left: 3em;
+    line-height: 2em;
+}
+
+div#cols {
+    margin: 0 auto;
+    width: 800px;
+    padding: 1em;
+}
+
+div#menu {
+    width: 100px;
+    padding-top: 2em;
+    float: left;
+}
+
+div#menu a {
+    display: block;
+    clear: both;
+}
+
+div#main {
+    width: 680px;
+    border-left: 1px solid #666;
+    padding-left: 10px;
+    float: right;
+}
+
+.input  { color: #6af; font-style: italic; font-weight: bold; }
+.bold   { color: #fff; font-weight: bold; }
+.red    { color: #f00; }
+.yellow { color: #ff0; }
+.green  { color: #0f0; }

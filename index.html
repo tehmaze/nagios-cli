@@ -4,25 +4,122 @@
     <title>nagios-cli &mdash; Nagios command line interface</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="cols">
-<div id="menu">
-    <a href="#about">about</a>
-    <a href="#usage">usage</a>
-</div>
 <div id="main">
     <h1 id="logo">nagios-cli</h1>
+
     <h2 id="about">About</h2>
     <p>
-        nagios-cli is an intuitive command line interface utility to interface
+        Nagios-cli is an intuitive command line interface utility to interface
         the <a href="http://www.nagios.org/">Nagios</a> monitoring tools.
-    </p>
-    <p>
         By default, Nagios comes with a web based graphical user interface, now
         with nagios-cli, you can also bring the power of text based console
         interfaces to your favourite monitoring suite.
     </p>
+
+    <h2 id="requirements">Requirements</h2>
+    <p>
+        To run nagios-cli, you need at least:
+    </p>
+    <ul>
+        <li><a href="http://www.nagios.org/">Nagios</a> version 2.x, 3.x</a></li>
+        <li><a href="http://www.python.org/">Python</a> version 2.4 (or any newer 2.x version)</a></li>
+    </ul>
+    <p>
+        To fully profit from history and tab completion, optionally install:
+    </p>
+    <ul>
+        <li><a href="http://www.gnu.org/s/readline">readline</a></li>
+        <li><a href="http://pypi.python.org/pypi/readline">Python readline</a></li>
+    </ul>
+
+    <h2 id="installtion">Installation</h2>
+    <p>
+        To install nagios-cli, run the provided <code>setup.py</code> setup script:
+    </p>
+    <pre>$ <span class="input">python setup.py build</span>
+$ <span class="input">sudo python setup.py install</span>
+&hellip;</pre>
+
+    <h2 id="usage">Usage</h2>
+    <p>
+        For a list of options, run <code>nagios-cli --help</code>:
+    </p>
+    <pre>$ <span class="bold">nagios-cli --help</span>
+Usage: nagios-cli [&lt;options&gt;] [&lt;host&gt; [&lt;service&gt;]]
+
+Options:
+  -h, --help            show this help message and exit
+
+  Generic:
+    -c filename, --config=filename
+                        configuration file name
+    -w, --write         write configuration file
+
+  User Interface:
+    --no-color          disable UI colors
+</pre>
+
+    <h2 id="demo">Demo</h2>
+    <pre>$ <span class="input">nagios-cli</span>
+Welcome to the nagios command line interface
+nagios &gt; <span class="input">host</span>
+42 hosts available
+
+To switch objects, use: host &lt;hostname&gt;
+nagios &gt; <span class="input">host loc&lt;tab&gt;</span>
+nagios &gt; <span class="input">host localhost</span>
+nagios <span class="bold">(host) localhost</span>&gt; <span class="input">service</span>
+12 services for this host
+Disk Space          : <span class="yellow">! WARNING</span>, WARNING - /data0 has 8% free (19G/246G ext3)
+Free Memory         : <span class="green">↑ OK</span>, OK - 14% RAM used, 3% Swap used
+Func daemon         : <span class="green">↑ OK</span>, TCP OK - 0.000 second response time on port 5123
+HTTP                : <span class="green">↑ OK</span>, HTTP OK HTTP/1.1 200 OK - 261 bytes in 0.001 sec
+NRPE Daemon Running : <span class="green">↑ OK</span>, TCP OK - 0.000 second response time on port 5666
+NRPE EMail Queue    : <span class="green">↑ OK</span>, OK: mailq (0) is below threshold (10/20)
+NTP Check           : <span class="green">↑ OK</span>, NTP OK: Offset -0.001946568489 secs
+Puppet Activity     : <span class="green">↑ OK</span>, OK: Host updated 1742s ago
+RAID                : <span class="bold red">↓ CRITICAL</span>, RAID CRITICAL - SparesMissing event
+Rsync               : <span class="green">↑ OK</span>, TCP OK - 0.000 second response time on port 873
+SSH                 : <span class="green">↑ OK</span>, SSH OK - OpenSSH_4.4 (protocol 2.0)
+nagios <span class="bold">(host) localhost</span>&gt; <span class="input">service disk&lt;tab&gt;</span>
+nagios <span class="bold">(host) localhost</span>&gt; <span class="input">service Disk-Space</span>
+nagios <span class="bold">(host) localhost → Disk Space</span>&gt; <span class="input">ack&lt;tab&gt;</span>
+nagios <span class="bold">(host) localhost → Disk Space</span>&gt; <span class="input">acknowledge</span>
+comment        : <span class="input">Ordered bigger disks</span>
+sticky     [Yn]: <span class="input">y</span>
+notify     [Yn]: <span class="input">y</span>
+persistent [Yn]: <span class="input">y</span>
+<span class="yellow">Problem acknowledged</span>
+nagios <span class="bold">(host) localhost → Disk Space</span>&gt; <span class="input">^d</span>
+nagios <span class="bold">(host) localhost</span>&gt; <span class="input">service SSH</span>
+nagios <span class="bold">(host) localhost → SSH</span>&gt; <span class="input">status</span>
+host name           : localhost
+service description : SSH
+current state       : <span class="green">↑ OK</span>
+is flapping         : no
+plugin output       : <span class="bold">SSH OK - OpenSSH_4.4 (protocol 2.0)</span>
+last time down      : N/A
+last state change   : 2010-07-30 11:00:06
+last check          : 2012-01-27 01:04:16
+next check          : 2012-01-27 01:09:16
+check interval      : 5.000000
+check latency       : 0.086
+check period        : 24x7
+notification period : 24x7
+current attempt     : 1
+max attempts        : 3
+nagios <span class="bold">(host) localhost → SSH</span>&gt;
+</pre>
+</div>
+<div id="menu">
+    <a href="#about">about</a>
+    <a href="#requirements">requirements</a>
+    <a href="#usage">usage</a>
+    <a href="#demo">demo</a>
 </div>
 </div>
 </body>
