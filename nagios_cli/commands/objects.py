@@ -91,9 +91,10 @@ class Service(Command):
             if not part:
                 self.matches = host.services.keys()
             elif len(part) == 1:
+                find = part[0].lower()
                 self.matches = [service
                     for service in host.services
-                    if service.startswith(part[0])]
+                    if service.lower().startswith(find)]
             else:
                 self.matches = []
 
@@ -157,7 +158,8 @@ class Acknowledge(Command):
             persistent,
             get_username(),
             comment)
-        self.cli.sendline('Host problem acknowledged')
+        self.cli.sendline(self.cli.ui.color('bold_yellow',
+            'Host problem acknowledged'))
 
     def run_service(self, obj, comment, sticky, notify='1', persistent='1'):
         self.cli.command('ACKNOWLEDGE_SVC_PROBLEM',
@@ -168,7 +170,8 @@ class Acknowledge(Command):
             persistent,
             get_username(),
             comment)
-        self.cli.sendline('Host problem acknowledged')
+        self.cli.sendline(self.cli.ui.color('bold_yellow',
+            'Service problem acknowledged'))
             
 
 class Status(Command):
