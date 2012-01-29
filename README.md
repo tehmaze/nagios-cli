@@ -12,11 +12,11 @@ Requirements
 ------------
 
 Rquired:
- *  Nagios 2.x or 3.x
- *  Python 2.4+
+*  Nagios 2.x or 3.x
+*  Python 2.4+
 
 Optional:
- *  libreadline
+*  libreadline
 
 
 Usage
