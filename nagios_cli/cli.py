@@ -1,6 +1,11 @@
 import os
 import re
-import readline
+try:
+    import readline
+except ImportError:
+    import warnings
+    warnings.warn('No readline available')
+    readline = None
 import sys
 from nagios_cli import command, nagios
 from nagios_cli.context import Context
@@ -28,7 +33,8 @@ class CLI(object):
         self.command = nagios.Command(config)
 
         self.setup_prompt()
-        self.setup_readline()
+        if readline:
+            self.setup_readline()
         self.setup_commands()
 
     # Setup
@@ -200,7 +206,10 @@ class CLI(object):
 
     def complete(self, text, state):
         if state == 0:
-            line = readline.get_line_buffer()
+            if readline:
+                line = readline.get_line_buffer()
+            else:
+                line = text
             part = RE_SPACING.split(line)
 
             if part and part[0]:
