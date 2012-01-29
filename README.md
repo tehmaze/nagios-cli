@@ -11,11 +11,13 @@ available via the web based graphical user interface.
 Requirements
 ------------
 
-Rquired:
+Required:
+
 *  Nagios 2.x or 3.x
 *  Python 2.4+
 
 Optional:
+
 *  libreadline
 
 
