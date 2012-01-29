@@ -161,6 +161,7 @@ DEFAULT = (
     About('about'),
     License('license'),
     EOF('EOF'),
+    EOF('..'),
     Exit('exit'),
     Exit('quit'),
     Help('help'),
