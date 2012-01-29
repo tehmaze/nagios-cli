@@ -4,7 +4,7 @@ nagios-cli
 About
 -----
 
-nagios-ci is a Nagios command line interface, exposing some features that are
+nagios-cli is a Nagios command line interface, exposing some features that are
 available via the web based graphical user interface.
 
 
@@ -22,8 +22,8 @@ Optional:
 Usage
 -----
 
-The default configuration will look for the `status.dat` file in the
-`/var/log/nagios` directory, and it expects the `command_file` to be
+The default configuration will look for the `status_file` file in the
+`/var/log/nagios/status.dat` file, and it expects the `command_file` to be
 available at `/var/log/nagios/rw/nagios.cmd`. If you wish to override
 this, you can generate a configuration file with:
 
