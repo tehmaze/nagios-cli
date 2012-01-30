@@ -7,11 +7,13 @@ from nagios_cli.fields import FIELDS
 
 class Object(Section, dict):
     @classmethod
-    def convert(cls, data={}, strict=False):
+    def convert(cls, data={}, strict=False, limit=()):
         obj = cls()
         for key, value in data.iteritems():
-            if key in FIELDS:
-                obj[key] = FIELDS[key](value)
+            if limit and key not in limit:
+                continue
+            elif key in FIELDS:
+                obj[key] = FIELDS[key]()(value)
             elif strict:
                 raise TypeError, 'Field type "%s" unknown' % (key,)
         return obj
@@ -50,12 +52,20 @@ class Objects(object):
             spinner = Spinner(self.cli, 'Loading nagios objects')
         filename = self.config.get('nagios.status_file')
 
-        for item in self.parser.parse(filename):
+        limit = dict(
+            info = (),
+            hoststatus = self.config.get_list('object.host.status'),
+            servicestatus = self.config.get_list('object.service.status'),
+        )
+        limit['hoststatus'].extend(['host_name', 'current_status'])
+        limit['servicestatus'].extend(['host_name', 'current_status', 'service_description'])
+
+        for item in self.parser.parse(filename, limit=limit.keys()):
             if item.name == 'info':
                 self.info = Object.convert(item)
 
             elif item.name == 'hoststatus':
-                host = Host.convert(item, 1)
+                host = Host.convert(item, limit=limit['hoststatus'])
                 host['services'] = {}
                 self.hosts[str(host.host_name)] = host
 
@@ -67,7 +77,7 @@ class Objects(object):
                     # XXX as it's not able to handle quotation. Therefor we
                     # XXX need to make sure we have no services with spaces :(
                     name = name.replace(' ', '-')
-                    host.services[name] = Service.convert(item)
+                    host.services[name] = Service.convert(item, limit=limit['servicestatus'])
                     if not self.config.options.quiet:
                         spinner.tick()
 

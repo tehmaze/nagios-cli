@@ -1,85 +1,96 @@
 import datetime
 
 
+def singleton(cls):
+    instances = {}
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+    return getinstance
+
+
 class Field(object):
-    def __init__(self, raw):
-        self.raw = raw
-        self.value = self.parse(raw)
-
-    def __str__(self):
-        return str(self.value)
-
-    def parse(self, raw):
+    def __call__(self, raw):
         return raw
 
 
+@singleton
 class Boolean(Field):
-    def __str__(self):
-        return ['false', 'true'][int(self.value)]
-
-    def parse(self, raw):
-        return bool(int(raw))
+    def __call__(self, raw):
+        return ['false', 'true'][int(raw)]
 
 
+@singleton
 class String(Field):
     pass
 
 
+@singleton
 class Number(Field):
-    def parse(self, raw):
-        return int(raw)
+    pass
 
 
+@singleton
 class Float(Field):
-    def parse(self, raw):
-        return float(raw)
+    pass
 
 
-class Percentage(Float):
-    def __str__(self):
-        return '%.02f%%' % (self.value,)
+@singleton
+class Percentage(Field):
+    def __call__(self, raw):
+        return '%.02f%%' % (float(raw),)
 
 
-class State(Number):
+@singleton
+class State(Field):
     states = ['ok', 'warning', 'critical', 'unknown']
 
-    def __str__(self):
-        return self.states[self.value]
+    def __call__(self, raw):
+        return self.states[int(raw)]
 
 
+@singleton
 class Time(Field):
-    def parse(self, raw):
+    def __call__(self, raw):
         value = int(raw)
         if value:
-            return datetime.datetime.fromtimestamp(value)
+            return str(datetime.datetime.fromtimestamp(value))
+        else:
+            return 'never'
 
 
-class Type(Number):
+class Type(Field):
     types = []
 
-    def __str__(self):
+    def __call__(self, raw):
         try:
-            return self.types[self.value]
+            return self.types[int(raw)]
         except IndexError:
             return 'n/a'
 
 
+@singleton
 class AcknowledgementType(Type):
     types = ['none', 'normal', 'sticky']
 
 
+@singleton
 class CheckOptionType(Type):
     types = ['none', 'force execution', 'fresheness check', 'orphan check']
 
 
+@singleton
 class CheckType(Type):
     types = ['active', 'passive']
 
 
+@singleton
 class StateType(Type):
     types = ['soft', 'hard']
 
 
+@singleton
 class EntryType(Type):
     types = ['unknown', 'user comment', 'downtime comment',
         'flapping comment', 'acknowledgement comment']

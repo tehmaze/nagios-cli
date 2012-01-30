@@ -81,6 +81,13 @@ class Config(dict):
     def has_section(self, section):
         return bool(self.get_section(section))
 
+    def get_list(self, key, default=[]):
+        value = self.get(key, None)
+        if not value:
+            return default
+        else:
+            return [part for part in value.splitlines() if part]
+
     def get_section(self, section):
         keys = []
         name = '.'.join([section, ''])

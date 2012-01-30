@@ -81,11 +81,9 @@ class Spinner(object):
 
     def tick(self):
         self.pos += 1
-        if self.pos >= len(self.chars):
-            self.pos = 0
-
-        self.cli.send('\b%s' % (self.chars[self.pos]))
-        self.cli.flush()
+        self.cli.send('\b%s' % (self.chars[self.pos % len(self.chars)]))
+        if self.pos % 10 == 0:
+            self.cli.flush()
 
     def stop(self):
         self.cli.send('\r\033[K')
