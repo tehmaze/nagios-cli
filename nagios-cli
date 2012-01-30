@@ -40,8 +40,6 @@ def run():
         parser.error('quiet and verbose options are mutually exclusive')
         return 1
 
-    config = Config(options)
-    config.load_default()
     if options.write:
         if not options.config:
             parser.error('missing configuration file name')
@@ -50,12 +48,17 @@ def run():
             parser.error('not overwriting pre-existing configuration file')
             return 1
         else:
+            from nagios_cli.config import DEFAULT_CONFIG
             fd = open(options.config, 'w')
-            fd.write(config.as_ini())
+            fd.write('# -*- coding: utf-8; -*-\n')
+            fd.write(DEFAULT_CONFIG.encode('utf-8'))
             fd.write('\n')
             fd.close()
             print 'wrote configuration to', options.config
             return 0
+
+    config = Config(options)
+    config.load_default()
 
     if options.config:
         config.load(options.config)
@@ -74,7 +77,7 @@ def run():
     if options.execute:
         for line in options.execute.split(';'):
             line = line.lstrip()
-            if not cli.dispatch(line):
+            if cli.dispatch(line):
                 return 1
         return 0
 
