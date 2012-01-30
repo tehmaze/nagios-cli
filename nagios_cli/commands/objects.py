@@ -68,13 +68,14 @@ class Service(Command):
 
         host = self.cli.context.get()
         if not service:
+            # Fancy formatter
+            fancy = Fancy(self.cli.ui)
             self.cli.sendline('%s services for this host' % (len(host.services),))
             self.cli.sendline('')
-            format = Formatted(self.cli.ui)
             for service in sorted(host.services):
                 name = host.services[service].service_description
                 self.cli.sendline('%s: %s, %s' % (str(name).ljust(20, ' '),
-                    str(host.services[service].current_state),
+                    fancy.state(str(host.services[service].current_state)),
                     str(host.services[service].plugin_output)[:48]))
 
         elif service in host.services:
