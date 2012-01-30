@@ -13,7 +13,7 @@ class Object(Section, dict):
             if limit and key not in limit:
                 continue
             elif key in FIELDS:
-                obj[key] = FIELDS[key]()(value)
+                obj[key] = FIELDS[key](value)
             elif strict:
                 raise TypeError, 'Field type "%s" unknown' % (key,)
         return obj

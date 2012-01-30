@@ -19,4 +19,3 @@ def token_split(text, quote_chars=QUOTE_CHARS):
             pass
 
     raise ValueError, "Quotation mismatch"
-
