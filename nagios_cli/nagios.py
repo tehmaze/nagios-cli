@@ -21,37 +21,55 @@ class Section(dict):
 
 
 class Parser(object):
-    def __init__(self, define=True):
+    def __init__(self, define=True, limit=()):
         self.section = None
         self.define = define
+        self.limit = limit
 
-    def parse(self, filename):
+    def end_section(self):
+        if self.section:
+            section = self.section
+            self.section = None
+            return section
+
+    def new_section(self, name):
+        if not self.limit or name in self.limit:
+            self.section = Section(name)
+
+    def parse(self, filename, limit=None):
+        if limit is not None:
+            self.limit = limit
+
         handle = open(filename, 'rb')
         for line in handle:
             line = line.strip()
-            part = line.split()
-            #print part
 
-            if not part:
+            if not line:
                 continue
             
             elif self.section is None:
                 if self.define:
-                    if part[0] == 'define' and part[-1] == '{':
-                        self.section = Section(part[1])
-                elif part[-1] == '{':
-                    self.section = Section(part[0])
+                    if line[:6] == 'define' and line[-1] == '{':
+                        self.new_section(line[7:-1].strip())
+                elif line[-1] == '{':
+                    self.new_section(line[:-1].strip())
 
             elif line == '}':
-                yield self.section
-                self.section = None
+                yield self.end_section()
 
-            elif line.startswith('#'):
+            elif line[0] == '#':
                 continue
 
             else:
                 if self.define:
-                    self.section[part[0]] = ' '.join(part[1:])
+                    try:
+                        space = line.index(' ')
+                        self.section[line[:space]] = line[space + 1:]
+                    except ValueError:
+                        pass
                 elif '=' in line:
-                    part = line.split('=', 1)
-                    self.section[part[0]] = part[1]
+                    try:
+                        equal = line.index('=')
+                        self.section[line[:equal]] = line[equal + 1:]
+                    except ValueError:
+                        pass
