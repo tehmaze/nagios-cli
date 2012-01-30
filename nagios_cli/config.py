@@ -21,6 +21,37 @@ command_file            = %(log)s/rw/nagios.cmd
 object_cache_file       = %(log)s/objects.cache
 status_file             = %(log)s/status.dat
 
+[object]
+host.status             =
+    host_name
+    address
+    current_state
+    plugin_output
+    is_flapping
+    last_check
+    last_time_down
+    last_state_change
+    check_period
+    notification_period
+    current_attempt
+    max_attempts
+service.status          =
+    host_name
+    service_description
+    current_state
+    is_flapping
+    plugin_output
+    last_time_down
+    last_state_change
+    last_check
+    next_check
+    check_interval
+    check_latency
+    check_period
+    notification_period
+    current_attempt
+    max_attempts
+
 [string]
 level.ok                = ↑ OK
 level.warning           = ! WARNING

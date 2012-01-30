@@ -242,19 +242,19 @@ class CLI(object):
     def dispatch(self, line):
         if not line:
             self.sendline('')
-            return True
+            return False
 
         part = RE_SPACING.split(line)
         if not part:
             self.sendline('')
-            return True
+            return False
 
         cmnd, args = part[0], part[1:]
         if not self.command_run(cmnd, args):
             self.error('Invalid command "%s"' % (cmnd,))
-            return False
+            return True # stop
         else:
-            return True
+            return False
 
     def run(self, banner='Welcome to the nagios command line interface'):
         if not self.config.options.quiet:
@@ -268,7 +268,5 @@ class CLI(object):
             except KeyboardInterrupt:
                 line = ''
 
-            stop = self.dispatch(line)
-            if stop:
-                self.running = False
+            self.dispatch(line)
 

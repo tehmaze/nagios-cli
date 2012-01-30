@@ -196,20 +196,8 @@ class Status(Command):
         # Fancy formatter
         fancy = Fancy(self.cli.ui)
         # Show info about host
-        fields = (
-            'host_name',
-            'address',
-            'current_state',
-            'plugin_output',
-            'is_flapping',
-            'last_check',
-            'last_time_down',
-            'last_state_change',
-            'check_period',
-            'notification_period',
-            'current_attempt',
-            'max_attempts',
-        )
+        fields = self.cli.config.get('object.host.status')
+        fields = [field for field in fields.splitlines() if field]
         for field in fields:
             value = str(instance.get(field))
             if field == 'current_state':
@@ -228,23 +216,8 @@ class Status(Command):
         # Fancy formatter
         fancy = Fancy(self.cli.ui)
         # Show info about service
-        fields = (
-            'host_name',
-            'service_description',
-            'current_state',
-            'is_flapping',
-            'plugin_output',
-            'last_time_down',
-            'last_state_change',
-            'last_check',
-            'next_check',
-            'check_interval',
-            'check_latency',
-            'check_period',
-            'notification_period',
-            'current_attempt',
-            'max_attempts',
-        )
+        fields = self.cli.config.get('object.service.status')
+        fields = [field for field in fields.splitlines() if field]
         for field in fields:
             value = str(instance.get(field))
             if field == 'current_state':
