@@ -86,7 +86,7 @@ class Config(dict):
         if not value:
             return default
         else:
-            return [part for part in value.splitlines() if part]
+            return filter(None, value.splitlines())
 
     def get_section(self, section):
         keys = []
