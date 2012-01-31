@@ -1,4 +1,10 @@
 import re
+try:
+    re.Scanner
+except AttributeError:
+    # For Python 2.4, we patch the module
+    from sre import Scanner
+    re.Scanner = Scanner
 
 def group(*options):
     return '(%s)' % ('|'.join(options),)

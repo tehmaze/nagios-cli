@@ -13,13 +13,27 @@ class SymbolBase(object):
     first = None
 
     def nud(self):
+        '''
+        Null declaration, is used when a token appears at the beginning
+        of a language construct.
+        '''
         raise SyntaxError('Syntax error %r' % (self.ident,))
 
     def led(self, left):
+        '''
+        Left denotation, is used when it appears inside the construct.
+        '''
         raise SyntaxError('Unknown operator %r' % (self.ident,))
 
 
 def symbol(ident, bp=0):
+    '''
+    Gets (and create if not exists) as named symbol.
+
+    Optionally, you can specify a binding power (bp) value, which will be used
+    to control operator presedence; the higher the value, the tighter a token
+    binds to the tokens that follow.
+    '''
     try:
         s = SYMBOLS[ident]
     except KeyError:
@@ -32,6 +46,8 @@ def symbol(ident, bp=0):
     else:
         s.lbp = max(bp, s.lbp)
     return s
+
+# Helper functions
 
 def infix(ident, bp):
     def led(self, left):
@@ -65,6 +81,7 @@ def method(Symbol):
         setattr(Symbol, fn.__name__, fn)
     return wrapped
 
+# Big evil parser
 
 class Parser(object):
     token = None
