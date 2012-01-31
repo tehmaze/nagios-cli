@@ -120,7 +120,7 @@ class Parser(object):
             'empty': '',
         })
         for kind, value in tokenize(program):
-            print (kind, value),
+            #print (kind, value),
             if kind == 'name':
                 s = SYMBOLS['(literal)']()
                 try:
