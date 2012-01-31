@@ -86,16 +86,16 @@ PREFIX      = group(
 END         = r'$'
 
 scanner = re.Scanner((
-    (PATTERN,       lambda scanner, token: ('string', token)),
-    (PREFIX,        lambda scanner, token: ('symbol', token)),
-    (INFIX,         lambda scanner, token: ('symbol', token)),
-    (INFIXR,        lambda scanner, token: ('symbol', token)),
-    (STRING,        lambda scanner, token: ('string', token)),
+    (PATTERN,       lambda scanner, token: ('string',   token)),
+    (PREFIX,        lambda scanner, token: ('symbol',   token)),
+    (INFIX,         lambda scanner, token: ('symbol',   token)),
+    (INFIXR,        lambda scanner, token: ('symbol',   token)),
+    (STRING,        lambda scanner, token: ('string',   token)),
     (VARIABLE,      lambda scanner, token: ('variable', token)),
-    (NAME,          lambda scanner, token: ('name', token)),
-    (FLOAT,         lambda scanner, token: ('float', token)),
-    (NUMBER,        lambda scanner, token: ('number', token)),
-    (END,           lambda scanner, token: ('end', '(end)')),
+    (NAME,          lambda scanner, token: ('name',     token)),
+    (FLOAT,         lambda scanner, token: ('float',    token)),
+    (NUMBER,        lambda scanner, token: ('number',   token)),
+    (END,           lambda scanner, token: ('end',      '(end)')),
     (WHITESPACE,    None),
 ))
 
