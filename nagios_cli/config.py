@@ -18,6 +18,7 @@ prompt_separator        = " → "
 [nagios]
 log                     = /var/log/nagios
 command_file            = %(log)s/rw/nagios.cmd
+log_file                = %(log)s/nagios.log
 object_cache_file       = %(log)s/objects.cache
 status_file             = %(log)s/status.dat
 
