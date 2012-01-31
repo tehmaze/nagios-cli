@@ -1,3 +1,9 @@
+# Crude symbol based top down operator presedence parser, as originally
+# implemented by Vaughan Pratt[1] and Douglas Crockford[2].
+#
+# [1]: http://doi.acm.org/10.1145/512927.512931
+# [2]: http://javascript.crockford.com/tdop/tdop.html
+
 import re
 #from nagios_cli.filters.tokenizer import tokenize
 from tokenizer import tokenize

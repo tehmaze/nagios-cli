@@ -1,3 +1,13 @@
+# Simple regular expression based tokenizer. A lot of the regular expressions
+# are taken from the Python stdlib[1].
+#
+# The re.Scanner idea was mentioned by AXK[2] on Stack Overflow[3], to use
+# that as a Lexer in Python. It's a nice idea and it works great.
+#
+# [1] http://hg.python.org/cpython/file/2.7/Lib/tokenize.py which
+# [2] http://servut.us/akx/
+# [3] http://stackoverflow.com/questions/691148/pythonic-way-to-implement...
+
 import re
 try:
     re.Scanner
