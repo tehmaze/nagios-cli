@@ -51,7 +51,7 @@ class Exit(Command):
         Go back to the shell.
         '''
 
-        self.cli.sendline('Bye')
+        self.cli.sendline('')
         self.cli.running = False
 
 
