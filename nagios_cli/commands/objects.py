@@ -27,6 +27,9 @@ class List(Command):
 
     def show(self, mask, items):
         items = sorted(fnmatch.filter(items, mask))
+        if not items:
+            return
+
         maxlen = max(map(len, items))
         maxcnt = int((float(80 / (maxlen + 2))) + 0.5)
         y = 0
