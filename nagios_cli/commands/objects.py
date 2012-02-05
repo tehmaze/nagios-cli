@@ -1,7 +1,44 @@
+import fnmatch
 from nagios_cli import objects
 from nagios_cli.commands.base import Command
 from nagios_cli.ui import Fancy
 from nagios_cli.util import get_username
+
+
+class List(Command):
+    is_global = False
+
+    def valid_in_context(self, context):
+        obj = context.get()
+        return obj == [] or isinstance(obj, objects.Host)
+
+    def run(self, mask='*'):
+        obj = self.cli.context.get()
+        if obj == []:
+            self.run_host(mask)
+        elif isinstance(obj, objects.Host):
+            self.run_service(obj, mask)
+
+    def run_host(self, mask):
+        self.show(mask, self.cli.objects.hosts.keys())
+
+    def run_service(self, obj, mask):
+        self.show(mask, obj['services'].keys())
+
+    def show(self, mask, items):
+        items = sorted(fnmatch.filter(items, mask))
+        maxlen = max(map(len, items))
+        maxcnt = int((float(80 / (maxlen + 2))) + 0.5)
+        y = 0
+        while True:
+            sliced = items[y * maxcnt:(y + 1) * maxcnt]
+            if not sliced:
+                break
+
+            for item in sliced:
+                self.cli.send(item.ljust(maxlen + 2, ' '))
+            self.cli.sendline('')
+            y += 1
 
 
 class Host(Command):
@@ -106,7 +143,7 @@ class Service(Command):
 
 class Acknowledge(Command):
     is_global = False
-        
+
     def valid_in_context(self, context):
         obj = context.get()
         return isinstance(obj, objects.Object)
@@ -173,7 +210,7 @@ class Acknowledge(Command):
             comment)
         self.cli.sendline(self.cli.ui.color('bold_yellow',
             'Service problem acknowledged'))
-            
+
 
 class Status(Command):
     is_global = False
@@ -229,8 +266,11 @@ class Status(Command):
 
 # Default commands
 DEFAULT = (
+    # Available in general/host context
+    List('ls'),
+    List('list'),
     # Host context
-    Host('host'),   
+    Host('host'),
     # Service context
     Service('service'),
     # Available in host/service context
