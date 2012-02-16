@@ -27,9 +27,15 @@ def token_split(text, quote_chars=QUOTE_CHARS):
 
     raise ValueError, "Quotation mismatch"
 
-def tail(filename, wait=0.1):
+def tail(filename, wait=0.1, seek=0):
     st = os.stat(filename)
     fp = open(filename, 'rb')
+
+    # Seek to the end
+    if seek <= 0:
+        fp.seek(abs(seek), 2)
+    else:
+        fp.seek(seek)
 
     # Read until file is truncated, collect results in a string buffer
     size = st[stat.ST_SIZE]
