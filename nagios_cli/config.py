@@ -25,7 +25,6 @@ status_file             = %(log)s/status.dat
 [object]
 host.status             =
     host_name
-    address
     current_state
     plugin_output
     is_flapping
