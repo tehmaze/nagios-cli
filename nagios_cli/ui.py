@@ -49,7 +49,15 @@ class Fancy(object):
         self.ui = ui
         self.config = self.ui.config
 
+    def datetime(self, value):
+        value = float(value)
+        return str(datetime.datetime.fromtimestamp(value))
+
     def state(self, value):
+        if isinstance(value, basestring) and value.isdigit():
+            return self.state(int(value))
+        elif type(value) in [int, long]:
+            value = ['ok', 'warning', 'critical', 'unknown'][value]
         return self.ui.color('level.%s' % (value,),
             self.config.get('string.level.%s' % (value,), value))
 
