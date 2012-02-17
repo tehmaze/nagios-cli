@@ -358,8 +358,8 @@ nagios status.dat file.");
 static PyTypeObject ServiceType = {
     PyObject_HEAD_INIT(&PyType_Type)
     0,
-    "Host",
-    sizeof(HostObject),
+    "Service",
+    sizeof(ServiceObject),
     0,
     (destructor)Service_dealloc,        /* tp_dealloc           */
     Service_print,                      /* tp_print             */

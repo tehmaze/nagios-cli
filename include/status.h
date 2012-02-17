@@ -1,5 +1,5 @@
-#ifndef _STATUS_H_
-#define _STATUS_H_
+#ifndef __STATUS_H__
+#define __STATUS_H__
 
 #include <sys/time.h>
 #include <Python.h>
@@ -110,6 +110,6 @@ typedef struct servicestatus_struct {
     int     obsess_over_service;
 } servicestatus;
 
-int read_status_data(char *, PyListObject *, PyListObject *);
+int read_status_data(char *, PyListObject *, PyListObject *, char *);
 
-#endif // _STATUS_H_
+#endif // __STATUS_H__

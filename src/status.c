@@ -39,7 +39,7 @@ char *unescape_newlines(char *buffer) {
     return buffer;
 }
 
-int read_status_data(char *filename, PyListObject *hosts, PyListObject *services) {
+int read_status_data(char *filename, PyListObject *hosts, PyListObject *services, char *host_name) {
     int result = OK;
 
 #ifdef NO_MMAP
@@ -53,12 +53,14 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
     char *var = NULL;
     char *val = NULL;
     HostObject *temp_host = NULL;
-    servicestatus *temp_service = NULL;
+    ServiceObject *temp_service = NULL;
 
     if (hosts == NULL)
         return ERROR;
     if (services == NULL)
         return ERROR;
+    if (host_name != NULL)
+        printf("Looking for host_name \"%s\"\n", host_name);
 
 #ifdef NO_MMAP
     if ((fp = fopen(filename, "r")) == NULL)
@@ -112,15 +114,7 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
         else if (!strcmp(input, "servicestatus {")) {
                 // Service status object
                 data_type = XSDDEFAULT_SERVICESTATUS_DATA;
-                temp_service = (servicestatus *) malloc(sizeof(servicestatus));
-                if (temp_service) {
-                    temp_service->host_name = NULL;
-                    temp_service->description = NULL;
-                    temp_service->plugin_output = NULL;
-                    temp_service->long_plugin_output = NULL;
-                    temp_service->perf_data = NULL;
-                    temp_service->check_options = 0;
-                }
+                temp_service = (ServiceObject *)Service_NEW();
             }
 
         else if (!strcmp(input, "}")) {
@@ -171,8 +165,14 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
                     case XSDDEFAULT_HOSTSTATUS_DATA:
                         if (temp_host == NULL)
                             break;
-                        else if (!strcmp(var, "host_name"))
+                        else if (!strcmp(var, "host_name")) {
+                            if (host_name != NULL && strcmp(val, host_name)) {
+                                temp_host = NULL;
+                                data_type = XSDDEFAULT_NO_DATA;
+                                break;
+                            }
                             temp_host->host_name = TO_STR(val);
+                        }
                         else if (!strcmp(var, "has_been_checked"))
                             temp_host->has_been_checked = TO_BOOL(val);
                         else if (!strcmp(var, "should_be_scheduled"))
@@ -188,11 +188,11 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
                         else if (!strcmp(var, "plugin_output")) {
                             temp_host->plugin_output = TO_STR(val);
                             unescape_newlines(temp_host->plugin_output);
-                            }
+                        }
                         else if (!strcmp(var, "long_plugin_output")) {
                             temp_host->long_plugin_output = TO_STR(val);
                             unescape_newlines(temp_host->long_plugin_output);
-                            }
+                        }
                         else if (!strcmp(var, "performance_data"))
                             temp_host->perf_data = TO_STR(val);
                         else if (!strcmp(var, "current_attempt"))
@@ -287,8 +287,14 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
                     case XSDDEFAULT_SERVICESTATUS_DATA:
                         if (temp_service == NULL)
                             break;
-                        else if (!strcmp(var, "host_name"))
+                        else if (!strcmp(var, "host_name")) {
+                            if (host_name != NULL && strcmp(val, host_name)) {
+                                temp_service = NULL;
+                                data_type = XSDDEFAULT_NO_DATA;
+                                break;
+                            }
                             temp_service->host_name = TO_STR(val);
+                        }
                         else if(!strcmp(var, "service_description"))
                             temp_service->description = TO_STR(val);
                         else if(!strcmp(var, "has_been_checked"))
@@ -326,11 +332,11 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
                         else if(!strcmp(var, "plugin_output")) {
                             temp_service->plugin_output = TO_STR(val);
                             unescape_newlines(temp_service->plugin_output);
-                            }
+                        }
                         else if(!strcmp(var, "long_plugin_output")) {
                             temp_service->long_plugin_output = TO_STR(val);
                             unescape_newlines(temp_service->long_plugin_output);
-                            }
+                        }
                         else if(!strcmp(var, "performance_data"))
                             temp_service->perf_data = TO_STR(val);
                         else if(!strcmp(var, "last_check"))
@@ -378,6 +384,15 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
                 }
             }
     }
+
+#ifdef NO_MMAP
+    if (fclose(fp) == -1) {
+        PyErr_SetString(PyExc_IOError, strerror(errno));
+        return NULL;
+    }
+#else
+    mmapfile_close(statusfile);
+#endif
 
     return result;
 }

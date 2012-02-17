@@ -138,7 +138,7 @@ Service_repr(self)
     PyObject *self;
 {
     ServiceObject *object = (ServiceObject *)self;
-    char buf[128];
-    sprintf(buf, "<Service %s>", object->host_name);
+    char buf[8192];
+    sprintf(buf, "<Service \"%s\" on %s>", object->description, object->host_name);
     return PyString_FromString(buf);
 }

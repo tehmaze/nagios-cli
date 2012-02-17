@@ -1,5 +1,5 @@
-#ifndef _MMAPFILE_H_
-#define _MMAPFILE_H_
+#ifndef __MMAPFILE_H__
+#define __MMAPFILE_H__
 
 #include <time.h>
 
@@ -18,4 +18,4 @@ extern int          mmapfile_close(mmapfile *);
 extern char *       mmapfile_readline(mmapfile *);
 extern void         strip(char *);
 
-#endif // _MMAPFILE_H_
+#endif // __MMAPFILE_H__

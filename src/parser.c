@@ -9,9 +9,10 @@ parse_status(PyObject *self, PyObject *args)
     PyObject *result = NULL;
     PyListObject *hosts = NULL;
     PyListObject *services = NULL;
-    char *filename = NULL;
+    char *file_name = NULL;
+    char *host_name = NULL;
 
-    if (!PyArg_ParseTuple(args, "s", &filename)) {
+    if (!PyArg_ParseTuple(args, "s|s", &file_name, &host_name)) {
         return 0;
     }
 
@@ -22,7 +23,7 @@ parse_status(PyObject *self, PyObject *args)
     if (services == NULL)
         return 0;
 
-    if (read_status_data(filename, hosts, services) == ERROR)
+    if (read_status_data(file_name, hosts, services, host_name) == ERROR)
         return NULL;
 
     result = PyTuple_New(2);
