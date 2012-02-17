@@ -1,6 +1,21 @@
 #! /usr/bin/env python
 
-from distutils.core import setup
+from distutils.core import setup, Extension
+
+parser = Extension('_parser',
+    sources = [
+        'src/mmapfile.c',
+        'src/objects.c',
+        'src/status.c',
+        'src/parser.c',
+    ],
+    libraries = [
+        'c',
+    ],
+    include_dirs = [
+        'include',
+    ],
+)
 
 setup(
     name         = 'nagios_cli',
@@ -10,4 +25,5 @@ setup(
     author_email = 'maze@pyth0n.org',
     packages     = ['nagios_cli', 'nagios_cli.commands'],
     scripts      = ['nagios-cli'],
+    ext_modules  = [parser],
 )
