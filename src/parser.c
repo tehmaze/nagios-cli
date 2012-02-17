@@ -4,8 +4,7 @@
 #include "objects.h"
 
 PyObject *
-parse_status(PyObject *self, PyObject *args)
-{
+parse_status(PyObject *self, PyObject *args) {
     PyObject *result = NULL;
     PyListObject *hosts = NULL;
     PyListObject *services = NULL;
@@ -13,15 +12,15 @@ parse_status(PyObject *self, PyObject *args)
     char *host_name = NULL;
 
     if (!PyArg_ParseTuple(args, "s|s", &file_name, &host_name)) {
-        return 0;
+        return NULL;
     }
 
     hosts = (PyListObject *) PyList_New(0);
     if (hosts == NULL)
-        return 0;
+        return NULL;
     services = (PyListObject *) PyList_New(0);
     if (services == NULL)
-        return 0;
+        return NULL;
 
     Py_INCREF(hosts);
     Py_INCREF(services);
@@ -58,8 +57,8 @@ init_parser(void) {
         return;
 
     Py_INCREF(&HostType);
-    PyModule_AddObject(m, "Host", (PyObject *)&HostType);
+    PyModule_AddObject(m, "HostType", (PyObject *)&HostType);
     Py_INCREF(&ServiceType);
-    PyModule_AddObject(m, "Service", (PyObject *)&ServiceType);
+    PyModule_AddObject(m, "ServiceType", (PyObject *)&ServiceType);
 }
 

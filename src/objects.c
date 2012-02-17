@@ -28,9 +28,11 @@ Host_NEW()
 {
     HostObject *object = PyObject_NEW(HostObject, &HostType);
     if (object != NULL) {
+        object->services = PyDict_New();
         object->host_name = NULL;
         object->plugin_output = NULL;
         object->long_plugin_output = NULL;
+        Py_INCREF(object->services);
     }
 
     return (PyObject *)object;
@@ -81,6 +83,14 @@ Host_repr(self)
     char buf[128];
     sprintf(buf, "<Host %s>", object->host_name);
     return PyString_FromString(buf);
+}
+
+PyObject *
+Host_str(self)
+    PyObject *self;
+{
+    HostObject *object = (HostObject *)self;
+    return PyString_FromString(object->host_name);
 }
 
 PyObject *
@@ -141,4 +151,12 @@ Service_repr(self)
     char buf[8192];
     sprintf(buf, "<Service \"%s\" on %s>", object->description, object->host_name);
     return PyString_FromString(buf);
+}
+
+PyObject *
+Service_str(self)
+    PyObject *self;
+{
+    ServiceObject *object = (ServiceObject *)self;
+    return PyString_FromString(object->description);
 }

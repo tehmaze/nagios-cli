@@ -13,51 +13,53 @@
 
 typedef struct {
     PyObject_HEAD
-    char *  host_name;
-    char *  plugin_output;
-    char *  long_plugin_output;
-    char *  perf_data;
-    int     status;
-    long    last_update;
-    int     has_been_checked;
-    int     should_be_scheduled;
-    int     current_attempt;
-    int     max_attempts;
-    long    last_check;
-    long    next_check;
-    int     check_options;
-    int     check_type;
-    char *  check_period;
-    char *  check_command;
-    int     check_interval;
-    int     retry_interval;
-    char *  notification_period;
-    long    last_state_change;
-    long    last_hard_state_change;
-    int     last_hard_state;
-    long    last_time_up;
-    long    last_time_down;
-    long    last_time_unreachable;
-    int     state_type;
-    long    last_notification;
-    long    next_notification;
-    int     no_more_notifications;
-    int     notifications_enabled;
-    int     problem_has_been_acknowledged;
-    int     acknowledgement_type;
-    int     current_notification_number;
-    int     accept_passive_host_checks;
-    int     event_handler_enabled;
-    int     checks_enabled;
-    int     flap_detection_enabled;
-    int     is_flapping;
-    double  percent_state_change;
-    double  latency;
-    double  execution_time;
-    int     scheduled_downtime_depth;
-    int     failure_prediction_enabled;
-    int     process_performance_data;
-    int     obsess_over_host;
+    PyObject *  services;
+    char *      file_name;
+    char *      host_name;
+    char *      plugin_output;
+    char *      long_plugin_output;
+    char *      perf_data;
+    int         status;
+    long        last_update;
+    int         has_been_checked;
+    int         should_be_scheduled;
+    int         current_attempt;
+    int         max_attempts;
+    long        last_check;
+    long        next_check;
+    int         check_options;
+    int         check_type;
+    char *      check_period;
+    char *      check_command;
+    int         check_interval;
+    int         retry_interval;
+    char *      notification_period;
+    long        last_state_change;
+    long        last_hard_state_change;
+    int         last_hard_state;
+    long        last_time_up;
+    long        last_time_down;
+    long        last_time_unreachable;
+    int         state_type;
+    long        last_notification;
+    long        next_notification;
+    int         no_more_notifications;
+    int         notifications_enabled;
+    int         problem_has_been_acknowledged;
+    int         acknowledgement_type;
+    int         current_notification_number;
+    int         accept_passive_host_checks;
+    int         event_handler_enabled;
+    int         checks_enabled;
+    int         flap_detection_enabled;
+    int         is_flapping;
+    double      percent_state_change;
+    double      latency;
+    double      execution_time;
+    int         scheduled_downtime_depth;
+    int         failure_prediction_enabled;
+    int         process_performance_data;
+    int         obsess_over_host;
 } HostObject;
 
 PyObject *  Host_NEW(void);
@@ -68,8 +70,13 @@ int         Host_setattr(PyObject *, char *, PyObject *);
 int         Host_compare(PyObject *, PyObject *);
 long        Host_hash(PyObject *);
 PyObject *  Host_repr(PyObject *);
+PyObject *  Host_str(PyObject *);
 
 static PyMemberDef Host_members[] = {
+    {"services", T_OBJECT,
+        HOST_OFF(services), 0},
+    {"file_name", T_STRING,
+        HOST_OFF(file_name), READONLY},
     {"host_name", T_STRING,
         HOST_OFF(host_name), READONLY},
     {"plugin_output", T_STRING,
@@ -78,6 +85,8 @@ static PyMemberDef Host_members[] = {
         HOST_OFF(long_plugin_output), READONLY},
     {"perf_data", T_STRING,
         HOST_OFF(perf_data), READONLY},
+    {"current_state", T_INT,
+        HOST_OFF(status), READONLY},
     {"status", T_INT,
         HOST_OFF(status), READONLY},
     {"last_update", T_LONG,
@@ -174,17 +183,18 @@ static PyTypeObject HostType = {
     0,                                  /* tp_getattr           */
     0,                                  /* tp_setattr           */
     Host_compare,                       /* tp_compare           */
-    Host_repr,                          /* tp_repr              */
+    (reprfunc)Host_repr,                /* tp_repr              */
     0,                                  /* *tp_as_number        */
     0,                                  /* *tp_as_sequence      */
     0,                                  /* *tp_as_mapping       */
     Host_hash,                          /* tp_hash              */
     0,                                  /* tp_call              */
-    (reprfunc)Host_repr,                /* tp_str               */
+    Host_str,                           /* tp_str               */
     PyObject_GenericGetAttr,            /* tp_getattro          */
     PyObject_GenericSetAttr,            /* tp_setattro          */
     0,                                  /* tp_as_buffer         */
-    Py_TPFLAGS_DEFAULT,                 /* tp_flags             */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+                                        /* tp_flags             */
     Host_doc,                           /* tp_doc               */
     0,                                  /* tp_traverse          */
     0,                                  /* tp_clear             */
@@ -260,6 +270,7 @@ int         Service_setattr(PyObject *, char *, PyObject *);
 int         Service_compare(PyObject *, PyObject *);
 long        Service_hash(PyObject *);
 PyObject *  Service_repr(PyObject *);
+PyObject *  Service_str(PyObject *);
 
 static PyMemberDef Service_members[] = {
     {"host_name", T_STRING,
@@ -276,6 +287,8 @@ static PyMemberDef Service_members[] = {
         SERV_OFF(max_attempts), READONLY},
     {"current_attempt", T_INT,
         SERV_OFF(current_attempt), READONLY},
+    {"current_state", T_INT,
+        SERV_OFF(status), READONLY},
     {"status", T_INT,
         SERV_OFF(status), READONLY},
     {"last_update", T_LONG,
@@ -366,17 +379,18 @@ static PyTypeObject ServiceType = {
     0,                                  /* tp_getattr           */
     0,                                  /* tp_setattr           */
     Service_compare,                    /* tp_compare           */
-    Service_repr,                       /* tp_repr              */
+    (reprfunc)Service_repr,             /* tp_repr              */
     0,                                  /* *tp_as_number        */
     0,                                  /* *tp_as_sequence      */
     0,                                  /* *tp_as_mapping       */
     Service_hash,                       /* tp_hash              */
     0,                                  /* tp_call              */
-    (reprfunc)Service_repr,             /* tp_str               */
+    Service_str,                        /* tp_str               */
     PyObject_GenericGetAttr,            /* tp_getattro          */
     PyObject_GenericSetAttr,            /* tp_setattro          */
     0,                                  /* tp_as_buffer         */
-    Py_TPFLAGS_DEFAULT,                 /* tp_flags             */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+                                        /* tp_flags             */
     Service_doc,                        /* tp_doc               */
     0,                                  /* tp_traverse          */
     0,                                  /* tp_clear             */
