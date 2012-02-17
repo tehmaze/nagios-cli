@@ -109,12 +109,14 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
                 // Host status object
                 data_type = XSDDEFAULT_HOSTSTATUS_DATA;
                 temp_host = (HostObject *)Host_NEW();
+                Py_INCREF(temp_host);
             }
 
         else if (!strcmp(input, "servicestatus {")) {
                 // Service status object
                 data_type = XSDDEFAULT_SERVICESTATUS_DATA;
                 temp_service = (ServiceObject *)Service_NEW();
+                Py_INCREF(temp_service);
             }
 
         else if (!strcmp(input, "}")) {
@@ -125,6 +127,7 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
 
                     case XSDDEFAULT_HOSTSTATUS_DATA:
                         if (temp_host->host_name == NULL) {
+                            Py_DECREF(temp_host);
                             temp_host = NULL;
                             continue;
                         }
@@ -141,6 +144,7 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
 
                     case XSDDEFAULT_SERVICESTATUS_DATA:
                         if (temp_service->host_name == NULL) {
+                            Py_DECREF(temp_service);
                             temp_service = NULL;
                             continue;
                         }

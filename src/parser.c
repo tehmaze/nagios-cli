@@ -23,6 +23,8 @@ parse_status(PyObject *self, PyObject *args)
     if (services == NULL)
         return 0;
 
+    Py_INCREF(hosts);
+    Py_INCREF(services);
     if (read_status_data(file_name, hosts, services, host_name) == ERROR)
         return NULL;
 
@@ -37,16 +39,17 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
-#ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
+#ifndef PyMODINIT_FUNC
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
 init_parser(void) {
     PyObject *m;
 
-    //HostType.tp_new = PyType_GenericNew;
-    //if (PyType_Ready(&HostType) < 0)
-    //    return;
+    if (PyType_Ready(&HostType) < 0)
+        return;
+    if (PyType_Ready(&ServiceType) < 0)
+        return;
 
     m = Py_InitModule3("_parser", module_methods,
         "Nagios status file parser");
@@ -54,7 +57,9 @@ init_parser(void) {
     if (m == NULL)
         return;
 
-    //Py_INCREF(&HostType);
-    //PyModule_AddObject(m, "Host", (PyObject *) &HostType);
+    Py_INCREF(&HostType);
+    PyModule_AddObject(m, "Host", (PyObject *)&HostType);
+    Py_INCREF(&ServiceType);
+    PyModule_AddObject(m, "Service", (PyObject *)&ServiceType);
 }
 
