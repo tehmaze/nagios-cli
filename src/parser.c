@@ -33,8 +33,40 @@ parse_status(PyObject *self, PyObject *args) {
     return result;
 }
 
+PyObject *
+get_host(PyObject *self, PyObject *args) {
+    PyObject *result = NULL;
+    PyListObject *hosts = NULL;
+    char *file_name = NULL;
+    char *host_name = NULL;
+
+    if (!PyArg_ParseTuple(args, "ss", &file_name, &host_name)) {
+        return NULL;
+    }
+
+    hosts = (PyListObject *) PyList_New(0);
+    if (hosts == NULL)
+        return NULL;
+
+    Py_INCREF(hosts);
+    if (read_status_data(file_name, hosts, NULL, host_name) == ERROR)
+        return NULL;
+
+    if (PyList_Size((PyObject *)hosts) > 0) {
+        result = PyList_GetItem((PyObject *)hosts, 0);
+        Py_DECREF(hosts);
+        Py_INCREF(result);
+        return result;
+    } else {
+        Py_INCREF(Py_None);
+        result = Py_None;
+        return result;
+    }
+}
+
 static PyMethodDef module_methods[] = {
     {"parse_status", parse_status, METH_VARARGS, "Parse the status.dat file"},
+    {"get_host",     get_host,     METH_VARARGS, "Get the status of a host"},
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
 

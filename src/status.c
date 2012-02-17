@@ -55,9 +55,8 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
     HostObject *temp_host = NULL;
     ServiceObject *temp_service = NULL;
 
-    if (hosts == NULL)
-        return ERROR;
-    if (services == NULL)
+    // We need either one of those, calling without is useless
+    if (hosts == NULL && services == NULL)
         return ERROR;
     if (host_name != NULL)
         printf("Looking for host_name \"%s\"\n", host_name);
@@ -107,16 +106,20 @@ int read_status_data(char *filename, PyListObject *hosts, PyListObject *services
 
         else if (!strcmp(input, "hoststatus {")) {
                 // Host status object
-                data_type = XSDDEFAULT_HOSTSTATUS_DATA;
-                temp_host = (HostObject *)Host_NEW();
-                Py_INCREF(temp_host);
+                if (hosts != NULL) {
+                    data_type = XSDDEFAULT_HOSTSTATUS_DATA;
+                    temp_host = (HostObject *)Host_NEW();
+                    Py_INCREF(temp_host);
+                }
             }
 
         else if (!strcmp(input, "servicestatus {")) {
                 // Service status object
-                data_type = XSDDEFAULT_SERVICESTATUS_DATA;
-                temp_service = (ServiceObject *)Service_NEW();
-                Py_INCREF(temp_service);
+                if (services != NULL) {
+                    data_type = XSDDEFAULT_SERVICESTATUS_DATA;
+                    temp_service = (ServiceObject *)Service_NEW();
+                    Py_INCREF(temp_service);
+                }
             }
 
         else if (!strcmp(input, "}")) {
