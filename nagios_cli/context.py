@@ -33,6 +33,9 @@ class Context(object):
         '''
         self.stack = [item]
 
+    def empty(self):
+        self.stack = []
+
 
 class Section(object):
     # Override in subclass
