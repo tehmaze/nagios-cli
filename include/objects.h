@@ -14,7 +14,6 @@
 typedef struct {
     PyObject_HEAD
     PyObject *  services;
-    char *      file_name;
     char *      host_name;
     char *      plugin_output;
     char *      long_plugin_output;
@@ -111,6 +110,10 @@ static PyMemberDef Host_members[] = {
         HOST_OFF(check_period), READONLY},
     {"check_command", T_STRING,
         HOST_OFF(check_command), READONLY},
+    {"check_interval", T_INT,
+        HOST_OFF(check_interval), READONLY},
+    {"notification_period", T_STRING,
+        HOST_OFF(notification_period), READONLY},
     {"last_state_change", T_LONG,
         HOST_OFF(last_state_change), READONLY},
     {"last_hard_state_change", T_STRING,
@@ -275,6 +278,8 @@ PyObject *  Service_str(PyObject *);
 static PyMemberDef Service_members[] = {
     {"host_name", T_STRING,
         SERV_OFF(host_name), READONLY},
+    {"service_description", T_STRING,
+        SERV_OFF(description), READONLY},
     {"description", T_STRING,
         SERV_OFF(description), READONLY},
     {"plugin_output", T_STRING,
