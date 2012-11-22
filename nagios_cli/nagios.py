@@ -40,13 +40,26 @@ class Parser(object):
         if limit is not None:
             self.limit = limit
 
-        handle = open(filename, 'rb')
+        retry = 10
+        handle = None
+        while handle is None:
+            try:
+                handle = open(filename, 'rb')
+            except:
+                retry -= 1
+                if retry:
+                    print '%s is not available, retry %d' % (filename, retry)
+                    time.sleep(0.5)
+                else:
+                    print '%s is not available' % (filename,)
+                    sys.exit(0)
+
         for line in handle:
             line = line.strip()
 
             if not line:
                 continue
-            
+
             elif self.section is None:
                 if self.define:
                     if line[:6] == 'define' and line[-1] == '{':
