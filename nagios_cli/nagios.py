@@ -1,15 +1,28 @@
 import time
+import sys
 
 
 class Command(object):
     def __init__(self, config):
         self.config = config
-        self.pipe = open(config.get('nagios.command_file'), 'a')
+        self.filename = config.get('nagios.command_file')
+        try:
+            self.pipe = open(self.filename, 'a')
+        except (IOError, OSError), e:
+            self.pipe = None
 
     def __call__(self, *args):
+        if self.pipe is None:
+            return
+
         self.pipe.write('[%d] %s\n' % (time.time(),
             ';'.join(map(str, args))))
         self.pipe.flush()
+
+    def _read_only(self):
+        return bool(self.pipe)
+
+    read_only = property(_read_only)
 
 
 class Section(dict):

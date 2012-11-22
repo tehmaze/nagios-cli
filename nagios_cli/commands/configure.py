@@ -21,7 +21,7 @@ class Set(Command):
     def valid_in_context(self, context):
         obj = context.get()
         return isinstance(obj, Configure)
-        
+
     def run(self, key=None, value=None):
         '''
         Set or get current configuration keys.
@@ -62,7 +62,7 @@ class Set(Command):
 
         else:
             self.cli.sendline('Not implemented')
-    
+
     def complete(self, text, state):
         if state == 0:
             if '.' in text:

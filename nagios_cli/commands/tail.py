@@ -80,7 +80,7 @@ class Tail(Command):
         # Tail log
         log = Log()
         filename = self.cli.config.get('nagios.log_file')
-        self.cli.sendline('following %s' % (filename,))
+        self.cli.sendline('Following %s' % (filename,))
 
         try:
             for line in tail(filename):

@@ -171,6 +171,10 @@ class Acknowledge(Command):
             acknowledge "Problem will be fixed" 1 1 0
         '''
 
+        if self.cli.command.read_only:
+            self.cli.sendline('Failed: client in read-only mode')
+            return
+
         try:
             if comment is None:
                 comment = self.cli.ask_str('comment', 15)
