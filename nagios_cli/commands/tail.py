@@ -17,6 +17,7 @@ class Log(object):
         'LOG VERSION',
         'HOST NOTIFICATION',
         'SERVICE DOWNTIME ALERT',
+        'SERVICE EVENT HANDLER',
         'SERVICE NOTIFICATION',
         'PASSIVE HOST CHECK',
         'PASSIVE SERVICE CHECK',
