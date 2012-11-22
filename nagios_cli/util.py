@@ -52,7 +52,7 @@ def tail(filename, wait=0.1, seek=0):
             else:
                 try:
                     time.sleep(wait)
-                except KeyboardInterrupt:
+                except:
                     break
         else:
             line.write(char)
