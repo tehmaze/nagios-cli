@@ -1,0 +1,68 @@
+# -*- coding: utf-8; -*-
+
+[cli]
+history                 = ~/.nagios_cli_history
+
+[ui]
+color                   = 1
+prompt                  = nagios %s>
+prompt_separator        = " → "
+
+[nagios]
+log                     = /var/log/nagios
+command_file            = %(log)s/rw/nagios.cmd
+log_file                = %(log)s/nagios.log
+object_cache_file       = %(log)s/objects.cache
+status_file             = %(log)s/status.dat
+
+[object]
+host.status             =
+    host_name
+    current_state
+    plugin_output
+    is_flapping
+    last_check
+    last_time_down
+    last_state_change
+    check_period
+    notification_period
+    current_attempt
+    max_attempts
+service.status          =
+    host_name
+    service_description
+    current_state
+    is_flapping
+    plugin_output
+    last_time_down
+    last_state_change
+    last_check
+    next_check
+    check_interval
+    check_latency
+    check_period
+    notification_period
+    current_attempt
+    max_attempts
+
+[string]
+level.ok                = ↑ OK
+level.warning           = ! WARNING
+level.critical          = ↓ CRITICAL
+level.unknown           = ↕ UNKNOWN
+
+[color]
+error                   = bold_red
+
+prompt                  = normal
+prompt.object           = bold
+
+host.host_name          = bold
+host.plugin_output      = bold
+service.plugin_output   = bold
+
+level.ok                = bold_green
+level.warning           = bold_yellow
+level.critical          = bold_red
+level.unknown           = bold_magenta
+
