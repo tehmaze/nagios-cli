@@ -9,6 +9,7 @@ from nagios_cli.filters import Parser
 
 class Log(object):
     ignored = (
+        'Warning',
         'CURRENT HOST STATE',
         'CURRENT SERVICE STATE',
         'EXTERNAL COMMAND',
@@ -17,6 +18,8 @@ class Log(object):
         'HOST NOTIFICATION',
         'SERVICE DOWNTIME ALERT',
         'SERVICE NOTIFICATION',
+        'PASSIVE HOST CHECK',
+        'PASSIVE SERVICE CHECK',
     )
     current_states = ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN']
     state_types = ['SOFT', 'HARD']
@@ -67,6 +70,9 @@ class Log(object):
 
 class Tail(Command):
     def run(self, *filters):
+        '''
+        Follow events as they are recorded to the logs.
+        '''
         filters = ' '.join(filters)
         self.today = ''
 
@@ -93,6 +99,8 @@ class Tail(Command):
                         output=obj.plugin_output):
                         continue
                     self.show_host(obj)
+        except KeyboardInterrupt:
+            pass
         except SyntaxError, e:
             self.cli.sendline('Syntax error: %s' % (str(e),))
 
