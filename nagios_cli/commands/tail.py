@@ -115,6 +115,21 @@ class Tail(Command):
         self.today = date
         self.cli.sendline('--- day changed to %s ---' % (date,))
 
+    def show_host(self, host):
+        data, clock = host.last_check.split(' ')
+        if data != self.today:
+            self.show_date(date)
+
+        # Fancy formatter
+        fancy = Fancy(self.cli.ui)
+        output = ' '.join(host.plugin_output.splitlines()).strip()
+        self.cli.sendline('%s %s:' % (
+            clock,
+            host.host_name))
+        self.cli.sendline('    %s, %s' % (
+            fancy.state(host.current_state),
+            output))
+
     def show_service(self, service):
         date, clock = service.last_check.split(' ')
         if date != self.today:
