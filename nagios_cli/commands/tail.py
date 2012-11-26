@@ -9,6 +9,7 @@ from nagios_cli.filters import Parser
 
 class Log(object):
     ignored = (
+        'Error',
         'Warning',
         'CURRENT HOST STATE',
         'CURRENT SERVICE STATE',
