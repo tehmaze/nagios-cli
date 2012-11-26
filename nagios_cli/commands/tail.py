@@ -16,14 +16,15 @@ class Log(object):
         'LOG ROTATION',
         'LOG VERSION',
         'HOST NOTIFICATION',
-        'SERVICE DOWNTIME ALERT',
         'SERVICE EVENT HANDLER',
         'SERVICE NOTIFICATION',
         'PASSIVE HOST CHECK',
         'PASSIVE SERVICE CHECK',
     )
-    current_states = ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN']
-    state_types = ['SOFT', 'HARD']
+    current_states  = ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN']
+    downtime_states = ['STOPPED', 'STARTED']
+    host_states     = ['UP', 'DOWN', 'UNREACHABLE']
+    state_types     = ['SOFT', 'HARD']
 
     def parse(self, line):
         if line.startswith('[') and ': ' in line:
@@ -34,24 +35,33 @@ class Log(object):
             if kind == 'HOST ALERT':
                 part = rest.split(';')
                 return Host(dict(
-                    host_name           = part[0],
+                    last_check          = \
+                        FIELDS['last_check'](timestamp),
+                    host_name           = \
+                        FIELDS['host_name'](part[0]),
                     current_state       = \
-                        FIELDS['current_state'](Log.current_states.index(part[1])),
+                        FIELDS['current_state'](Log.host_states.index(part[1])),
                     state_type          = \
                         FIELDS['state_type'](Log.state_types.index(part[2])),
-                    plugin_output       = part[4].strip(),
+                    plugin_output       = \
+                        FIELDS['plugin_output'](part[4]),
                 ))
             
             # [1327916763] HOST DOWNTIME ALERT: hostxxx-01;STARTED; Host has entered a period of scheduled downtime
             elif kind == 'HOST DOWNTIME ALERT':
                 part = rest.split(';')
                 return Host(dict(
-                    host_name = part[0],
-                    plugin_output = part[2].strip(),
+                    last_check          = \
+                        FIELDS['last_check'](timestamp),
+                    host_name           = \
+                        FIELDS['host_name'](part[0]),
+                    current_state       = \
+                        FIELDS['current_state'](Log.downtime_states.index(part[1])),
+                    plugin_output       = \
+                        FIELDS['plugin_output'](part[2]),
                 ))
 
             # [1327878075] SERVICE ALERT: hostxxxx-01;HTTPD death;CRITICAL;HARD;3;CRITICAL: Failed to run query
-            # [1327916763] SERVICE DOWNTIME ALERT: hostxxx-01;SSH;STARTED; Service has entered a period of scheduled downtime
             elif kind == 'SERVICE ALERT':
                 part = rest.split(';')
                 return Service(dict(
@@ -65,6 +75,22 @@ class Log(object):
                         FIELDS['current_state'](Log.current_states.index(part[2])),
                     state_type          = \
                         FIELDS['state_type'](Log.state_types.index(part[3])),
+                    plugin_output       = \
+                        FIELDS['plugin_output'](part[5]),
+                ))
+
+            # [1327916763] SERVICE DOWNTIME ALERT: hostxxx-01;SSH;STARTED; Service has entered a period of scheduled downtime
+            elif kind == 'SERVICE DOWNTIME ALERT':
+                part = rest.split(';')
+                return Service(dict(
+                    last_check          = \
+                        FIELDS['last_check'](timestamp),
+                    host_name           = \
+                        FIELDS['host_name'](part[0]),
+                    service_description = \
+                        FIELDS['service_description'](part[1]),
+                    current_state       = \
+                        FIELDS['current_state'](Log.downtime_states.index(part[2])),
                     plugin_output       = \
                         FIELDS['plugin_output'](part[5]),
                 ))
@@ -97,8 +123,12 @@ class Tail(Command):
 
         try:
             for line in tail(filename):
-                #print line
-                obj = log.parse(line)
+                try:
+                    obj = log.parse(line)
+                except Exception, e:
+                    # If parsing the line fails, continue to the next one
+                    continue
+                    
                 if isinstance(obj, Service):
                     if not self.filter(filters,
                         host=obj.host_name,
@@ -129,8 +159,8 @@ class Tail(Command):
         self.cli.sendline('--- day changed to %s ---' % (date,))
 
     def show_host(self, host):
-        data, clock = host.last_update.split(' ')
-        if data != self.today:
+        date, clock = host.last_check.split(' ')
+        if date != self.today:
             self.show_date(date)
 
         # Fancy formatter
