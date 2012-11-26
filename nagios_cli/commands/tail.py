@@ -29,16 +29,29 @@ class Log(object):
         if line.startswith('[') and ': ' in line:
             timestamp, rest = line[1:].split('] ', 1)
             kind, rest = rest.split(': ', 1)
-            # [1327916763] HOST DOWNTIME ALERT: mc01ccmdb-02;STARTED; Host has entered a period of scheduled downtime
-            if kind == 'HOST DOWNTIME ALERT':
+            
+            # [1353898215] HOST ALERT: hostxxx-01;DOWN;HARD;1;PING CRITICAL - Packet loss = 100%
+            if kind == 'HOST ALERT':
+                part = rest.split(';')
+                return Host(dict(
+                    host_name           = part[0],
+                    current_state       = \
+                        FIELDS['current_state'](Log.current_states.index(part[1])),
+                    state_type          = \
+                        FIELDS['state_type'](Log.state_types.index(part[2])),
+                    plugin_output       = part[4].strip(),
+                ))
+            
+            # [1327916763] HOST DOWNTIME ALERT: hostxxx-01;STARTED; Host has entered a period of scheduled downtime
+            elif kind == 'HOST DOWNTIME ALERT':
                 part = rest.split(';')
                 return Host(dict(
                     host_name = part[0],
                     plugin_output = part[2].strip(),
                 ))
 
-            # [1327878075] SERVICE ALERT: mc01monitorsrdb-02;BOOK HTTPD death;CRITICAL;HARD;3;CRITICAL: Failed to run query
-            # [1327916763] SERVICE DOWNTIME ALERT: mc01ccmdb-02;SSH;STARTED; Service has entered a period of scheduled downtime
+            # [1327878075] SERVICE ALERT: hostxxxx-01;HTTPD death;CRITICAL;HARD;3;CRITICAL: Failed to run query
+            # [1327916763] SERVICE DOWNTIME ALERT: hostxxx-01;SSH;STARTED; Service has entered a period of scheduled downtime
             elif kind == 'SERVICE ALERT':
                 part = rest.split(';')
                 return Service(dict(
@@ -116,7 +129,7 @@ class Tail(Command):
         self.cli.sendline('--- day changed to %s ---' % (date,))
 
     def show_host(self, host):
-        data, clock = host.last_check.split(' ')
+        data, clock = host.last_update.split(' ')
         if data != self.today:
             self.show_date(date)
 
