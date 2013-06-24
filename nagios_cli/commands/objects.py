@@ -3,7 +3,7 @@ from nagios_cli import objects
 from nagios_cli.commands.base import Command
 from nagios_cli.ui import Fancy
 from nagios_cli.util import get_username
-
+from time import time
 
 class List(Command):
     is_global = False
@@ -270,6 +270,37 @@ class Status(Command):
             self.cli.sendline('%s: %s' % (field.ljust(20, ' ').replace('_', ' '),
                 self.cli.ui.color('.'.join(['service', field]), value)))
 
+class Check(Command):
+    is_global = False
+
+    def valid_in_context(self, context):
+        obj = context.get()
+        return isinstance(obj, objects.Object)
+
+    def run(self):
+        '''
+        Force an immediate check of the active object.
+        '''
+
+        obj = self.cli.context.get()
+        if isinstance(obj, objects.Host):
+            self.run_host(obj)
+        elif isinstance(obj, objects.Service):
+            self.run_service(obj)
+
+    def run_host(self, obj):
+        self.cli.command('SCHEDULE_FORCED_HOST_CHECK', obj.host_name, int(time()))
+        self.cli.sendline(self.cli.ui.color('bold_yellow',
+            'Host check scheduled'))
+
+    def run_service(self, obj):
+        self.cli.command('SCHEDULE_FORCED_SVC_CHECK',
+            obj.host_name,
+            obj.service_description,
+            int(time()))
+        self.cli.sendline(self.cli.ui.color('bold_yellow',
+            'Service check scheduled'))
+
 
 # Default commands
 DEFAULT = (
@@ -282,6 +313,7 @@ DEFAULT = (
     Service('service'),
     # Available in host/service context
     Acknowledge('acknowledge'),
+    Check('check'),
     Status('status'),
     #Enable('enable'),
     #Disable('disable'),
