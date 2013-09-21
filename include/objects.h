@@ -1,8 +1,8 @@
 #ifndef __OBJECTS_H__
 #define __OBJECTS_H__
 
-#include <sys/file.h>
 #include <Python.h>
+#include <sys/file.h>
 
 #ifndef Py_STRUCTMEMBER_H
 #include <structmember.h>
@@ -74,8 +74,6 @@ PyObject *  Host_str(PyObject *);
 static PyMemberDef Host_members[] = {
     {"services", T_OBJECT,
         HOST_OFF(services), 0},
-    {"file_name", T_STRING,
-        HOST_OFF(file_name), READONLY},
     {"host_name", T_STRING,
         HOST_OFF(host_name), READONLY},
     {"plugin_output", T_STRING,

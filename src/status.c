@@ -1,3 +1,4 @@
+#include <Python.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,7 +7,6 @@
 #include "status.h"
 #include "mmapfile.h"
 
-#include <Python.h>
 #include "objects.h"
 
 // Macros used by the parser

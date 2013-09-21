@@ -1,8 +1,8 @@
 #ifndef __STATUS_H__
 #define __STATUS_H__
 
-#include <sys/time.h>
 #include <Python.h>
+#include <sys/time.h>
 
 // Max length of plugin output (including perf data)
 #define MAX_PLUGIN_OUTPUT_LENGTH                8192

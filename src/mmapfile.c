@@ -1,10 +1,10 @@
+#include <Python.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <Python.h>
 #include "common.h"
 #include "mmapfile.h"
 
