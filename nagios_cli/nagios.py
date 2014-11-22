@@ -20,7 +20,7 @@ class Command(object):
         self.pipe.flush()
 
     def _read_only(self):
-        return bool(self.pipe)
+        return not(bool(self.pipe))
 
     read_only = property(_read_only)
 
