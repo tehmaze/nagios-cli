@@ -177,7 +177,10 @@ class CLI(object):
             if info:
                 # Function arguments count (minus self)
                 args = self.commands[name].run.func_code.co_argcount - 1
-                least = args - len(self.commands[name].run.func_defaults)
+                try:
+                    least = args - len(self.commands[name].run.func_defaults)
+                except TypeError:
+                    least = 0
                 # Given arguments count (minus self)
                 given = int(info.groupdict()['given']) - 1
                 if args == least:
